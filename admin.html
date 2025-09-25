@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Zırva Aforizmalar</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <style>
+        .admin-header {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+            margin-bottom: 30px;
+            border-radius: 15px;
+        }
+        .admin-header h1 {
+            margin: 0;
+            font-size: 2rem;
+        }
+        .back-to-site {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        .password-protection {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            max-width: 400px;
+            margin: 100px auto;
+        }
+        .password-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .admin-content {
+            display: none;
+        }
+        .admin-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-to-site">
+            <i class="fas fa-arrow-left"></i> Ana Sayfaya Dön
+        </a>
+
+        <!-- Password Protection -->
+        <div id="passwordProtection" class="password-protection">
+            <h2><i class="fas fa-lock"></i> Admin Girişi</h2>
+            <p>Bu sayfaya erişmek için şifre giriniz:</p>
+            <input type="password" id="adminPassword" class="password-input" placeholder="Admin şifresi">
+            <button class="btn btn-primary" onclick="checkPassword()">
+                <i class="fas fa-sign-in-alt"></i> Giriş Yap
+            </button>
+            <p id="passwordError" style="color: #e53e3e; margin-top: 15px; display: none;">
+                <i class="fas fa-exclamation-triangle"></i> Yanlış şifre!
+            </p>
+        </div>
+
+        <!-- Admin Content -->
+        <div id="adminContent" class="admin-content">
+            <div class="admin-header">
+                <h1><i class="fas fa-crown"></i> Admin Panel</h1>
+                <p>Zırva Aforizmalar Yönetim Paneli</p>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="nav-tabs">
+                <button class="nav-tab active" data-tab="diary">
+                    <i class="fas fa-fire"></i> Mektuplar
+                </button>
+                <button class="nav-tab" data-tab="books">
+                    <i class="fas fa-bomb"></i> Bazı Kitaplar
+                </button>
+                <button class="nav-tab" data-tab="subscribers">
+                    <i class="fas fa-users"></i> Aboneler
+                </button>
+            </nav>
+
+            <!-- Diary Section -->
+            <section id="diary" class="tab-content active">
+                <div class="section-header">
+                    <h2><i class="fas fa-fire"></i> Mektuplarım</h2>
+                    <button class="btn btn-primary" id="newDiaryBtn">
+                        <i class="fas fa-bolt"></i> Yeni Mektup
+                    </button>
+                </div>
+
+                <div class="form-container" id="diaryForm" style="display: none;">
+                    <form id="diaryEntryForm">
+                        <div class="form-group">
+                            <label for="diaryTitle">Mektup Başlığı</label>
+                            <input type="text" id="diaryTitle" placeholder="Mektubunuzun başlığını yazın" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="diaryContent">Mektup İçeriği</label>
+                            <textarea id="diaryContent" placeholder="Düşüncelerinizi paylaşın..." required></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="hideDiaryForm()">İptal</button>
+                            <button type="submit" class="btn btn-primary">Mektubu Kaydet</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="entries-container" id="diaryEntries"></div>
+            </section>
+
+            <!-- Books Section -->
+            <section id="books" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-bomb"></i> Bazı Kitaplar</h2>
+                    <button class="btn btn-primary" id="newBookBtn">
+                        <i class="fas fa-bomb"></i> Yeni Kitap Ekle
+                    </button>
+                </div>
+
+                <div class="form-container" id="bookForm" style="display: none;">
+                    <form id="bookRecommendationForm">
+                        <div class="form-group">
+                            <label for="bookTitle">Kitap Adı</label>
+                            <input type="text" id="bookTitle" placeholder="Kitabın adını yazın" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookAuthor">Yazar</label>
+                            <input type="text" id="bookAuthor" placeholder="Yazarın adını yazın" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookGenre">Tür</label>
+                            <input type="text" id="bookGenre" placeholder="Roman, Bilim Kurgu, vs." required>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookRating">Puan (1-5)</label>
+                            <div class="rating-input">
+                                <input type="range" id="bookRating" min="1" max="5" value="5" class="rating-slider">
+                                <span class="rating-value" id="ratingValue">5</span>
+                                <div class="stars" id="ratingStars">
+                                    <i class="fas fa-star active"></i>
+                                    <i class="fas fa-star active"></i>
+                                    <i class="fas fa-star active"></i>
+                                    <i class="fas fa-star active"></i>
+                                    <i class="fas fa-star active"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="bookReview">Değerlendirme</label>
+                            <textarea id="bookReview" placeholder="Kitap hakkındaki düşüncelerinizi yazın..." required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="amazonLink">Amazon Linki (İsteğe Bağlı)</label>
+                            <input type="url" id="amazonLink" placeholder="https://amazon.com/...">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="hideBookForm()">İptal</button>
+                            <button type="submit" class="btn btn-primary">Kitabı Kaydet</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="entries-container" id="bookEntries"></div>
+            </section>
+
+            <!-- Subscribers Section -->
+            <section id="subscribers" class="tab-content">
+                <div class="section-header">
+                    <h2><i class="fas fa-users"></i> Abone Yönetimi</h2>
+                    <button class="btn btn-primary" id="newSubscriberBtn">
+                        <i class="fas fa-star"></i> Yeni Abone Ekle
+                    </button>
+                </div>
+
+                <div class="form-container" id="subscriberForm" style="display: none;">
+                    <form id="subscriberEntryForm">
+                        <div class="form-group">
+                            <label for="subscriberNickname">Lakap</label>
+                            <input type="text" id="subscriberNickname" placeholder="Abonenin lakabını yazın" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="subscriberEmail">E-posta Adresi</label>
+                            <input type="email" id="subscriberEmail" placeholder="E-posta adresini yazın" required>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-secondary" onclick="hideSubscriberForm()">İptal</button>
+                            <button type="submit" class="btn btn-primary">Abone Ekle</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="entries-container" id="subscriberEntries"></div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // Admin password
+        const ADMIN_PASSWORD = 'admin123';
+        
+        // Global variables
+        let diaryEntries = [];
+        let bookEntries = [];
+        let subscribers = [];
+        let currentTab = 'diary';
+        
+        // EmailJS configuration
+        const EMAILJS_CONFIG = {
+            serviceId: 'service_llq6e6q',
+            templateId: 'template_v86tgir',
+            publicKey: '6yS3I1T10NbjrfVBU'
+        };
+        
+        // Initialize EmailJS
+        if (typeof emailjs !== 'undefined') {
+            emailjs.init(EMAILJS_CONFIG.publicKey);
+        }
+        
+        // Load data from localStorage
+        function loadData() {
+            const savedDiaryEntries = localStorage.getItem('diaryEntries');
+            const savedBookEntries = localStorage.getItem('bookEntries');
+            const savedSubscribers = localStorage.getItem('subscribers');
+            
+            if (savedDiaryEntries) {
+                diaryEntries = JSON.parse(savedDiaryEntries);
+            }
+            if (savedBookEntries) {
+                bookEntries = JSON.parse(savedBookEntries);
+            }
+            if (savedSubscribers) {
+                subscribers = JSON.parse(savedSubscribers);
+            }
+        }
+        
+        // Save data to localStorage
+        function saveData() {
+            localStorage.setItem('diaryEntries', JSON.stringify(diaryEntries));
+            localStorage.setItem('bookEntries', JSON.stringify(bookEntries));
+            localStorage.setItem('subscribers', JSON.stringify(subscribers));
+        }
+        
+        // Utility functions
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('tr-TR', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function showNotification(message, type = 'info') {
+            alert(message);
+        }
+        
+        // EmailJS functions
+        function sendNotificationToSubscribers(type, title, message) {
+            if (subscribers.length === 0) {
+                console.log('Abone yok, email gönderilmedi');
+                return;
+            }
+            
+            subscribers.forEach(subscriber => {
+                if (subscriber.status === 'active') {
+                    sendEmail(subscriber.email, type, title, message);
+                }
+            });
+        }
+        
+        function sendEmail(toEmail, type, title, message) {
+            if (typeof emailjs === 'undefined') {
+                console.log('EmailJS yüklenmemiş');
+                return;
+            }
+            
+            const templateParams = {
+                to_email: toEmail,
+                from_name: 'Zırva Aforizmalar',
+                subject: `${type}: ${title}`,
+                message: message
+            };
+            
+            emailjs.send(EMAILJS_CONFIG.serviceId, EMAILJS_CONFIG.templateId, templateParams)
+                .then(function(response) {
+                    console.log('Email gönderildi:', response);
+                }, function(error) {
+                    console.log('Email hatası:', error);
+                });
+        }
+        
+        // Password check
+        function checkPassword() {
+            const password = document.getElementById('adminPassword').value;
+            const errorElement = document.getElementById('passwordError');
+            
+            if (password === ADMIN_PASSWORD) {
+                document.getElementById('passwordProtection').style.display = 'none';
+                document.getElementById('adminContent').classList.add('active');
+                initializeAdmin();
+            } else {
+                errorElement.style.display = 'block';
+                document.getElementById('adminPassword').value = '';
+            }
+        }
+        
+        function initializeAdmin() {
+            loadData();
+            initializeEventListeners();
+            displayEntries();
+        }
+        
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            document.querySelector(`[data-tab="${tabName}"]`).classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            currentTab = tabName;
+        }
+        
+        // Form functions
+        function showDiaryForm() {
+            document.getElementById('diaryForm').style.display = 'block';
+        }
+        
+        function hideDiaryForm() {
+            document.getElementById('diaryForm').style.display = 'none';
+            // Reset form and editing state
+            document.getElementById('diaryTitle').value = '';
+            document.getElementById('diaryContent').value = '';
+            window.editingDiaryId = null;
+            const submitBtn = document.querySelector('#diaryEntryForm button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Mektubu Kaydet';
+        }
+        
+        function showBookForm() {
+            document.getElementById('bookForm').style.display = 'block';
+        }
+        
+        function hideBookForm() {
+            document.getElementById('bookForm').style.display = 'none';
+            // Reset form and editing state
+            document.getElementById('bookTitle').value = '';
+            document.getElementById('bookAuthor').value = '';
+            document.getElementById('bookGenre').value = '';
+            document.getElementById('bookRating').value = '5';
+            document.getElementById('bookReview').value = '';
+            document.getElementById('amazonLink').value = '';
+            window.editingBookId = null;
+            const submitBtn = document.querySelector('#bookRecommendationForm button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Kitabı Kaydet';
+            // Reset rating display
+            document.getElementById('ratingValue').textContent = '5';
+            const stars = document.querySelectorAll('#ratingStars i');
+            stars.forEach((star, index) => {
+                star.classList.toggle('active', index < 5);
+            });
+        }
+        
+        function showSubscriberForm() {
+            document.getElementById('subscriberForm').style.display = 'block';
+        }
+        
+        function hideSubscriberForm() {
+            document.getElementById('subscriberForm').style.display = 'none';
+        }
+        
+        // Form submissions
+        function handleDiarySubmit(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('diaryTitle').value.trim();
+            const content = document.getElementById('diaryContent').value.trim();
+            
+            if (!title || !content) {
+                showNotification('Lütfen tüm alanları doldurun.', 'warning');
+                return;
+            }
+            
+            // Check if editing existing entry
+            if (window.editingDiaryId) {
+                const entryIndex = diaryEntries.findIndex(e => e.id === window.editingDiaryId);
+                if (entryIndex !== -1) {
+                    diaryEntries[entryIndex].title = title;
+                    diaryEntries[entryIndex].content = content;
+                    diaryEntries[entryIndex].date = new Date().toISOString();
+                    showNotification('Mektubunuz başarıyla güncellendi!', 'success');
+                }
+                window.editingDiaryId = null;
+            } else {
+                // Create new entry
+                const entry = {
+                    id: Date.now(),
+                    title: title,
+                    content: content,
+                    date: new Date().toISOString()
+                };
+                diaryEntries.unshift(entry);
+                showNotification('Mektubunuz başarıyla kaydedildi!', 'success');
+                
+                // Send notification to subscribers
+                sendNotificationToSubscribers('Yeni Mektup', title, `"${title}" mektubu eklendi!`);
+            }
+            
+            saveData();
+            displayEntries();
+            hideDiaryForm();
+            
+            // Reset form
+            document.getElementById('diaryTitle').value = '';
+            document.getElementById('diaryContent').value = '';
+            
+            // Reset submit button
+            const submitBtn = document.querySelector('#diaryEntryForm button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Mektubu Kaydet';
+        }
+        
+        function handleBookSubmit(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('bookTitle').value.trim();
+            const author = document.getElementById('bookAuthor').value.trim();
+            const genre = document.getElementById('bookGenre').value.trim();
+            const rating = document.getElementById('bookRating').value;
+            const review = document.getElementById('bookReview').value.trim();
+            const amazonLink = document.getElementById('amazonLink').value.trim();
+            
+            if (!title || !author || !genre || !review) {
+                showNotification('Lütfen tüm gerekli alanları doldurun.', 'warning');
+                return;
+            }
+            
+            // Check if editing existing entry
+            if (window.editingBookId) {
+                const entryIndex = bookEntries.findIndex(e => e.id === window.editingBookId);
+                if (entryIndex !== -1) {
+                    bookEntries[entryIndex].title = title;
+                    bookEntries[entryIndex].author = author;
+                    bookEntries[entryIndex].genre = genre;
+                    bookEntries[entryIndex].rating = parseInt(rating);
+                    bookEntries[entryIndex].review = review;
+                    bookEntries[entryIndex].amazonLink = amazonLink;
+                    bookEntries[entryIndex].date = new Date().toISOString();
+                    showNotification('Kitap başarıyla güncellendi!', 'success');
+                }
+                window.editingBookId = null;
+            } else {
+                // Create new entry
+                const entry = {
+                    id: Date.now(),
+                    title: title,
+                    author: author,
+                    genre: genre,
+                    rating: parseInt(rating),
+                    review: review,
+                    amazonLink: amazonLink,
+                    date: new Date().toISOString()
+                };
+                bookEntries.unshift(entry);
+                showNotification('Kitap başarıyla kaydedildi!', 'success');
+                
+                // Send notification to subscribers
+                sendNotificationToSubscribers('Yeni Kitap', title, `"${title}" kitabı eklendi!`);
+            }
+            
+            saveData();
+            displayEntries();
+            hideBookForm();
+            
+            // Reset form
+            document.getElementById('bookTitle').value = '';
+            document.getElementById('bookAuthor').value = '';
+            document.getElementById('bookGenre').value = '';
+            document.getElementById('bookRating').value = '5';
+            document.getElementById('bookReview').value = '';
+            document.getElementById('amazonLink').value = '';
+            
+            // Reset rating display
+            document.getElementById('ratingValue').textContent = '5';
+            const stars = document.querySelectorAll('#ratingStars i');
+            stars.forEach((star, index) => {
+                star.classList.toggle('active', index < 5);
+            });
+            
+            // Reset submit button
+            const submitBtn = document.querySelector('#bookRecommendationForm button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Kitabı Kaydet';
+        }
+        
+        function handleSubscriberSubmit(e) {
+            e.preventDefault();
+            
+            const nickname = document.getElementById('subscriberNickname').value.trim();
+            const email = document.getElementById('subscriberEmail').value.trim();
+            
+            if (!nickname || !email) {
+                showNotification('Lütfen tüm alanları doldurun.', 'warning');
+                return;
+            }
+            
+            if (subscribers.some(sub => sub.email === email)) {
+                showNotification('Bu e-posta adresi zaten kayıtlı.', 'warning');
+                return;
+            }
+            
+            const subscriber = {
+                id: Date.now(),
+                nickname: nickname,
+                email: email,
+                subscribedAt: new Date().toISOString(),
+                status: 'active',
+                source: 'admin'
+            };
+            
+            subscribers.unshift(subscriber);
+            saveData();
+            displayEntries();
+            hideSubscriberForm();
+            
+            document.getElementById('subscriberNickname').value = '';
+            document.getElementById('subscriberEmail').value = '';
+            
+            showNotification('Abone başarıyla eklendi!', 'success');
+        }
+        
+        // Edit functions
+        function editDiaryEntry(id) {
+            const entry = diaryEntries.find(e => e.id === id);
+            if (!entry) return;
+            
+            // Fill form with existing data
+            document.getElementById('diaryTitle').value = entry.title;
+            document.getElementById('diaryContent').value = entry.content;
+            
+            // Show form
+            showDiaryForm();
+            
+            // Store editing ID
+            window.editingDiaryId = id;
+            
+            // Change submit button text
+            const submitBtn = document.querySelector('#diaryEntryForm button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Güncelle';
+        }
+        
+        function editBookEntry(id) {
+            const entry = bookEntries.find(e => e.id === id);
+            if (!entry) return;
+            
+            // Fill form with existing data
+            document.getElementById('bookTitle').value = entry.title;
+            document.getElementById('bookAuthor').value = entry.author;
+            document.getElementById('bookGenre').value = entry.genre;
+            document.getElementById('bookRating').value = entry.rating;
+            document.getElementById('bookReview').value = entry.review;
+            document.getElementById('amazonLink').value = entry.amazonLink || '';
+            
+            // Update rating display
+            document.getElementById('ratingValue').textContent = entry.rating;
+            const stars = document.querySelectorAll('#ratingStars i');
+            stars.forEach((star, index) => {
+                star.classList.toggle('active', index < entry.rating);
+            });
+            
+            // Show form
+            showBookForm();
+            
+            // Store editing ID
+            window.editingBookId = id;
+            
+            // Change submit button text
+            const submitBtn = document.querySelector('#bookRecommendationForm button[type="submit"]');
+            submitBtn.innerHTML = '<i class="fas fa-save"></i> Güncelle';
+        }
+        
+        // Display functions
+        function displayEntries() {
+            displayDiaryEntries();
+            displayBookEntries();
+            displaySubscribers();
+        }
+        
+        function displayDiaryEntries() {
+            const container = document.getElementById('diaryEntries');
+            
+            if (diaryEntries.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-scroll"></i>
+                        <h3>Henüz mektubunuz yok</h3>
+                        <p>İlk mektubunuzu yazmak için "Yeni Mektup" butonuna tıklayın.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = diaryEntries.map(entry => `
+                <div class="entry-card" data-id="${entry.id}">
+                    <div class="entry-header">
+                        <div>
+                            <div class="entry-title">${escapeHtml(entry.title)}</div>
+                            <div class="entry-date">${formatDate(entry.date)}</div>
+                        </div>
+                        <div class="entry-actions">
+                            <button class="btn btn-warning" onclick="editDiaryEntry(${entry.id})">
+                                <i class="fas fa-edit"></i> Düzenle
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteDiaryEntry(${entry.id})">
+                                <i class="fas fa-trash"></i> Sil
+                            </button>
+                        </div>
+                    </div>
+                    <div class="entry-content">${escapeHtml(entry.content).replace(/\n/g, '<br>')}</div>
+                </div>
+            `).join('');
+        }
+        
+        function displayBookEntries() {
+            const container = document.getElementById('bookEntries');
+            
+            if (bookEntries.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-book"></i>
+                        <h3>Henüz kitap tavsiyeniz yok</h3>
+                        <p>İlk kitap tavsiyenizi eklemek için "Yeni Kitap Ekle" butonuna tıklayın.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = bookEntries.map(entry => `
+                <div class="entry-card book-entry" data-id="${entry.id}">
+                    <div class="entry-header">
+                        <div>
+                            <div class="book-title">${escapeHtml(entry.title)}</div>
+                            <div class="book-author">${escapeHtml(entry.author)}</div>
+                        </div>
+                        <div class="entry-actions">
+                            <button class="btn btn-warning" onclick="editBookEntry(${entry.id})">
+                                <i class="fas fa-edit"></i> Düzenle
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteBookEntry(${entry.id})">
+                                <i class="fas fa-trash"></i> Sil
+                            </button>
+                        </div>
+                    </div>
+                    <div class="book-meta">
+                        <span class="book-genre">${escapeHtml(entry.genre)}</span>
+                        <div class="book-rating">
+                            <span>Puan: ${entry.rating}/5</span>
+                            <div class="stars">
+                                ${Array(5).fill(0).map((_, i) => 
+                                    `<i class="fas fa-star ${i < entry.rating ? 'active' : ''}"></i>`
+                                ).join('')}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="book-review">${escapeHtml(entry.review).replace(/\n/g, '<br>')}</div>
+                    ${entry.amazonLink ? `<a href="${entry.amazonLink}" target="_blank" class="amazon-link-btn"><i class="fas fa-shopping-cart"></i> Amazon'da Gör</a>` : ''}
+                </div>
+            `).join('');
+        }
+        
+        function displaySubscribers() {
+            const container = document.getElementById('subscriberEntries');
+            
+            if (subscribers.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-users"></i>
+                        <h3>Henüz aboneniz yok</h3>
+                        <p>İlk abonenizi eklemek için "Yeni Abone Ekle" butonuna tıklayın.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = subscribers.map(subscriber => `
+                <div class="entry-card subscriber-card" data-id="${subscriber.id}">
+                    <div class="entry-header">
+                        <div>
+                            <div class="entry-title">${escapeHtml(subscriber.nickname)}</div>
+                            <div class="entry-date">${formatDate(subscriber.subscribedAt)}</div>
+                        </div>
+                        <div class="entry-actions">
+                            <button class="btn btn-danger" onclick="deleteSubscriber(${subscriber.id})">
+                                <i class="fas fa-trash"></i> Sil
+                            </button>
+                        </div>
+                    </div>
+                    <div class="entry-content">
+                        <strong>E-posta:</strong> ${escapeHtml(subscriber.email)}<br>
+                        <strong>Durum:</strong> ${subscriber.status === 'active' ? 'Aktif' : 'Pasif'}<br>
+                        <strong>Kaynak:</strong> ${subscriber.source === 'admin' ? 'Admin' : 'Web Sitesi'}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // Delete functions
+        function deleteDiaryEntry(id) {
+            if (confirm('Bu mektubu silmek istediğinizden emin misiniz?')) {
+                diaryEntries = diaryEntries.filter(entry => entry.id !== id);
+                saveData();
+                displayEntries();
+                showNotification('Mektup silindi.', 'info');
+            }
+        }
+        
+        function deleteBookEntry(id) {
+            if (confirm('Bu kitabı silmek istediğinizden emin misiniz?')) {
+                bookEntries = bookEntries.filter(entry => entry.id !== id);
+                saveData();
+                displayEntries();
+                showNotification('Kitap silindi.', 'info');
+            }
+        }
+        
+        function deleteSubscriber(id) {
+            if (confirm('Bu aboneyi silmek istediğinizden emin misiniz?')) {
+                subscribers = subscribers.filter(sub => sub.id !== id);
+                saveData();
+                displayEntries();
+                showNotification('Abone silindi.', 'info');
+            }
+        }
+        
+        // Initialize event listeners
+        function initializeEventListeners() {
+            // Tab navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    const targetTab = this.getAttribute('data-tab');
+                    switchTab(targetTab);
+                });
+            });
+            
+            // Form buttons
+            document.getElementById('newDiaryBtn').addEventListener('click', showDiaryForm);
+            document.getElementById('newBookBtn').addEventListener('click', showBookForm);
+            document.getElementById('newSubscriberBtn').addEventListener('click', showSubscriberForm);
+            
+            // Form submissions
+            document.getElementById('diaryEntryForm').addEventListener('submit', handleDiarySubmit);
+            document.getElementById('bookRecommendationForm').addEventListener('submit', handleBookSubmit);
+            document.getElementById('subscriberEntryForm').addEventListener('submit', handleSubscriberSubmit);
+            
+            // Rating slider
+            const ratingSlider = document.getElementById('bookRating');
+            if (ratingSlider) {
+                ratingSlider.addEventListener('input', function() {
+                    const value = this.value;
+                    document.getElementById('ratingValue').textContent = value;
+                    const stars = document.querySelectorAll('#ratingStars i');
+                    stars.forEach((star, index) => {
+                        star.classList.toggle('active', index < value);
+                    });
+                });
+            }
+            
+            // Password enter key
+            document.getElementById('adminPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+        }
+    </script>
+</body>
+</html>

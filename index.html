@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zırva Aforizmalar - Günlük ve Kitap Tavsiyeleri</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="profile-section">
+                    <div class="profile-photo-container">
+                        <img id="profilePhoto" src="" alt="Profil Fotoğrafı" class="profile-photo" style="display: none;">
+                        <div class="profile-photo-placeholder" id="profilePhotoPlaceholder">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <input type="file" id="profilePhotoInput" accept="image/*" class="profile-photo-input">
+                        <button class="profile-photo-btn" id="profilePhotoBtn">
+                            <i class="fas fa-camera"></i>
+                        </button>
+                    </div>
+                    <div class="header-text">
+                        <h1><i class="fas fa-bolt"></i> Zırva Aforizmalar</h1>
+                        <p>Düzensiz savrulmalarımı paylaştığım ama neden bunu yaptığımı bilmediğim köşe</p>
+                        
+                        <!-- Subscribe Form -->
+                        <div class="subscribe-form">
+                            <h3><i class="fas fa-star"></i> Düzenli takip edeyim dersen, yeni savrulmaları e-posta adresine göndereceğim</h3>
+                            <form id="publicSubscribeForm">
+                                <div class="subscribe-inputs">
+                                    <input type="text" id="publicNickname" placeholder="Lakabınız" required>
+                                    <input type="email" id="publicEmail" placeholder="E-posta adresiniz" required>
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-rocket"></i> Tamam be gönder
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="diary">
+                <i class="fas fa-fire"></i> Mektuplar
+            </button>
+            <button class="nav-tab" data-tab="books">
+                <i class="fas fa-bomb"></i> Bazı Kitaplar
+            </button>
+        </nav>
+
+        <!-- Diary Section -->
+        <section id="diary" class="tab-content active">
+            <div class="section-header">
+                <h2><i class="fas fa-fire"></i> Mektuplarım</h2>
+            </div>
+
+            <!-- New Diary Form -->
+            <div class="form-container" id="diaryForm" style="display: none;">
+                <form id="diaryEntryForm">
+                    <div class="form-group">
+                        <label for="diaryTitle">Başlık</label>
+                        <input type="text" id="diaryTitle" placeholder="Mektubunuzun başlığını girin..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="diaryDate">Tarih</label>
+                        <input type="date" id="diaryDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="diaryContent">Mektup İçeriği</label>
+                        <textarea id="diaryContent" rows="8" placeholder="Sevgili günlük, bugün..." required></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Kaydet
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="cancelDiaryBtn">
+                            <i class="fas fa-times"></i> İptal
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Diary Entries -->
+            <div class="entries-container" id="diaryEntries">
+                <!-- Diary entries will be dynamically added here -->
+            </div>
+        </section>
+
+        <!-- Books Section -->
+        <section id="books" class="tab-content">
+            <div class="section-header">
+                <h2><i class="fas fa-bomb"></i> Bazı Kitaplar</h2>
+            </div>
+
+            <!-- New Book Form -->
+            <div class="form-container" id="bookForm" style="display: none;">
+                <form id="bookRecommendationForm">
+                    <div class="form-group">
+                        <label for="bookTitle">Kitap Adı</label>
+                        <input type="text" id="bookTitle" placeholder="Kitabın adını girin..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookAuthor">Yazar</label>
+                        <input type="text" id="bookAuthor" placeholder="Yazarın adını girin..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookGenre">Tür</label>
+                        <select id="bookGenre" required>
+                            <option value="">Tür seçin...</option>
+                            <option value="roman">Roman</option>
+                            <option value="bilim-kurgu">Bilim Kurgu</option>
+                            <option value="tarih">Tarih</option>
+                            <option value="biyografi">Biyografi</option>
+                            <option value="felsefe">Felsefe</option>
+                            <option value="psikoloji">Psikoloji</option>
+                            <option value="kişisel-gelişim">Kişisel Gelişim</option>
+                            <option value="şiir">Şiir</option>
+                            <option value="diğer">Diğer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookRating">Puanım (1-5)</label>
+                        <div class="rating-input">
+                            <input type="range" id="bookRating" min="1" max="5" value="5" class="rating-slider">
+                            <span class="rating-value">5</span>
+                            <div class="stars">
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                                <i class="fas fa-star"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookReview">Değerlendirmem</label>
+                        <textarea id="bookReview" rows="6" placeholder="Bu kitap hakkında ne düşünüyorsunuz?" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookImage">Kitap Görseli</label>
+                        <div class="image-upload-container">
+                            <input type="file" id="bookImage" accept="image/*" class="image-input">
+                            <div class="image-upload-area" id="imageUploadArea">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>Kitap görselini buraya sürükleyin veya tıklayarak seçin</p>
+                                <small>JPG, PNG, GIF formatları desteklenir (Max: 5MB)</small>
+                            </div>
+                            <div class="image-preview" id="imagePreview" style="display: none;">
+                                <img id="previewImg" src="" alt="Kitap görseli">
+                                <button type="button" class="remove-image-btn" id="removeImageBtn">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bookAmazonLink">Amazon Bağlantısı (İsteğe bağlı)</label>
+                        <input type="url" id="bookAmazonLink" placeholder="https://www.amazon.com.tr/kitap-adı/dp/..." class="amazon-link-input">
+                        <small class="form-help">Kitabın Amazon sayfasının linkini buraya yapıştırın</small>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Kaydet
+                        </button>
+                        <button type="button" class="btn btn-secondary" id="cancelBookBtn">
+                            <i class="fas fa-times"></i> İptal
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Book Entries -->
+            <div class="entries-container" id="bookEntries">
+                <!-- Book entries will be dynamically added here -->
+            </div>
+        </section>
+
+    </div>
+
+    <!-- EmailJS SDK -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
