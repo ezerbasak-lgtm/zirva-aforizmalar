@@ -1,0 +1,42 @@
+{
+  "diaryEntries": [
+    {
+      "id": 1758949064251,
+      "title": "şopenaur",
+      "content": "evet, ilk mektubum. neden zırva aforizmalar? çünkü Z harfini severim. şopenaur okurdum gençken, hayat bilgeliği üzerine aforizmalar. okulda çimlerde ders arası, hava hafif güneşli. sandviç ve recep abinin çayı. “Yapıp ettiğimiz her şeyde, neredeyse her şeyden önce başkalarının görüşü gözetilir ve daha yakından baktığımızda, yaşadığımız tüm kaygıların ve korkuların bu görüş hakkındaki endişemizden kaynaklandığını görürüz. Çünkü, bizim hastalıklı bir hassaslıkta olduğu için sık sık hastalanan tüm özgüvenimizin, tüm kibirliliğimizin ve iddialarımızın ve aynı zamanda tüm gösterişimizin ve böbürlenmemizin temelinde başkalarının görüşü yatmaktadır.” oldu mu bu şimdi bu havaya? kedi de sandviçimi kaptı, çoğunu yemiştim neyse ki. sıkıldım şimdi, gidiyorum, gelicem..",
+      "date": "2025-09-27T04:57:44.251Z"
+    }
+  ],
+  "bookEntries": [
+    {
+      "id": 1758949544954,
+      "title": "Yaşam Bilgeliği Üzerine Aforizmalar",
+      "author": "Arthur Schopenhauer",
+      "genre": "Bilemedim, felsefe mi, deneme mi, kim bilir?",
+      "rating": 5,
+      "review": "sayfa sayısı az ama düşünmesi bol kitap, zamanının başucu kitaplarından",
+      "amazonLink": "https://www.amazon.com.tr/AFOR%C4%B0ZMALAR-C%C4%B0LTS%C4%B0Z-Arthur-Schopenhauer/dp/9754587000/ref=sr_1_5?adgrpid=121297243858&dib=eyJ2IjoiMSJ9.DlbjR8MrjgKWu1iwb46d2enYT833Cv5jBIcNNMxgINBsHR1eGMvTR9fGUdd3sY9zcHEQgHzjTL9grnFNxWO6FlE1o3gwhW2VW1JO5NKeg5rYmL8dAfdXxbRX1VUjuO5yncIRaMVm04PIBTbiyz8mqPyLfdOfagAVzX7vgAiFOqxeK84TVcY6Aai5svZ7p9c6sRMSGMj2tjhuY7-qg2vZlcfZmKzBy5K-j4J0JTMID9lwIq2UfB60Y9AEjQnVEgCXwiR-m8ZsrCmViVYQ4vdDeNGNdICAq0DNcEjH04LVJFg.19ATizxKTFewcUPWv79VPi99nB8-52HA7iV2UtaZq5s&dib_tag=se&hvadid=599815487452&hvdev=c&hvlocphy=1012786&hvnetw=g&hvqmt=b&hvrand=5623236834704574121&hvtargid=kwd-20088751&hydadcr=6907_2267099&keywords=schopenhauer&mcid=3fc58e04b0d93aef9ad9b0634f788c8a&qid=1758949241&sr=8-5",
+      "date": "2025-09-27T05:05:44.954Z"
+    }
+  ],
+  "subscribers": [
+    {
+      "id": 1758950323572,
+      "nickname": "Badado gmail",
+      "email": "ezer.basak@gmail.com",
+      "subscribedAt": "2025-09-27T05:18:43.572Z",
+      "status": "active",
+      "source": "admin"
+    },
+    {
+      "id": 1758947734965,
+      "nickname": "Badado",
+      "email": "basak.ezer@ibtech.com.tr",
+      "subscribedAt": "2025-09-27T04:35:34.965Z",
+      "status": "active",
+      "source": "admin"
+    }
+  ],
+  "comments": [],
+  "profilePhoto": "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
+}
