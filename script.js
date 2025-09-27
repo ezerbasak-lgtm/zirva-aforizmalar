@@ -25,8 +25,97 @@ document.addEventListener('DOMContentLoaded', function() {
     setCurrentDate();
 });
 
-// Load data from localStorage
-function loadData() {
+// Load data from JSON file
+async function loadData() {
+    console.log('Loading data from JSON...');
+    showDebugInfo('🔄 JSON dosyası yükleniyor...');
+    
+    try {
+        const response = await fetch('./data.json');
+        console.log('Response status:', response.status);
+        console.log('Response ok:', response.ok);
+        
+        showDebugInfo(`📡 Response: ${response.status} ${response.ok ? '✅' : '❌'}`);
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('JSON data loaded:', data);
+            
+            diaryEntries = data.diaryEntries || [];
+            bookEntries = data.bookEntries || [];
+            subscribers = data.subscribers || [];
+            comments = data.comments || [];
+            profilePhoto = data.profilePhoto || null;
+            
+            console.log('Diary entries loaded:', diaryEntries.length);
+            console.log('Book entries loaded:', bookEntries.length);
+            
+            showDebugInfo(`📝 Mektuplar: ${diaryEntries.length}, 📚 Kitaplar: ${bookEntries.length}, 👥 Aboneler: ${subscribers.length}`);
+            
+            if (profilePhoto) {
+                showProfilePhoto(profilePhoto);
+            } else {
+                showDefaultProfilePhoto();
+            }
+        } else {
+            console.log('JSON file not found, using localStorage fallback');
+            showDebugInfo('❌ JSON bulunamadı, localStorage kullanılıyor');
+            loadDataFromLocalStorage();
+        }
+    } catch (error) {
+        console.log('Error loading JSON, using localStorage fallback:', error);
+        showDebugInfo(`❌ Hata: ${error.message}`);
+        loadDataFromLocalStorage();
+    }
+}
+
+// Show debug information on page
+function showDebugInfo(message) {
+    // Create debug panel if it doesn't exist
+    let debugPanel = document.getElementById('debug-panel');
+    if (!debugPanel) {
+        debugPanel = document.createElement('div');
+        debugPanel.id = 'debug-panel';
+        debugPanel.style.cssText = `
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 9999;
+            max-width: 300px;
+            word-wrap: break-word;
+        `;
+        document.body.appendChild(debugPanel);
+    }
+    
+    // Add message with timestamp
+    const timestamp = new Date().toLocaleTimeString();
+    const messageDiv = document.createElement('div');
+    messageDiv.innerHTML = `[${timestamp}] ${message}`;
+    debugPanel.appendChild(messageDiv);
+    
+    // Keep only last 5 messages
+    const messages = debugPanel.children;
+    if (messages.length > 5) {
+        debugPanel.removeChild(messages[0]);
+    }
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        if (messageDiv.parentNode) {
+            messageDiv.parentNode.removeChild(messageDiv);
+        }
+    }, 5000);
+}
+
+// Fallback: Load data from localStorage
+function loadDataFromLocalStorage() {
+    showDebugInfo('💾 localStorage\'dan veri yükleniyor...');
+    
     const savedDiaryEntries = localStorage.getItem('diaryEntries');
     const savedBookEntries = localStorage.getItem('bookEntries');
     const savedSubscribers = localStorage.getItem('subscribers');
@@ -53,12 +142,13 @@ function loadData() {
         profilePhoto = savedProfilePhoto;
         showProfilePhoto(profilePhoto);
     } else {
-        // Show default profile photo
         showDefaultProfilePhoto();
     }
+    
+    showDebugInfo(`💾 localStorage: Mektuplar: ${diaryEntries.length}, Kitaplar: ${bookEntries.length}, Aboneler: ${subscribers.length}`);
 }
 
-// Save data to localStorage
+// Save data to localStorage (fallback)
 function saveData() {
     localStorage.setItem('diaryEntries', JSON.stringify(diaryEntries));
     localStorage.setItem('bookEntries', JSON.stringify(bookEntries));
@@ -67,6 +157,21 @@ function saveData() {
     if (profilePhoto) {
         localStorage.setItem('profilePhoto', profilePhoto);
     }
+}
+
+// Save data to JSON file (for admin use)
+async function saveDataToJSON() {
+    const data = {
+        diaryEntries: diaryEntries,
+        bookEntries: bookEntries,
+        subscribers: subscribers,
+        comments: comments,
+        profilePhoto: profilePhoto
+    };
+    
+    // This will be handled by admin panel
+    console.log('Data to save:', data);
+    return data;
 }
 
 // Initialize all event listeners

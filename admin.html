@@ -83,6 +83,9 @@
             <div class="admin-header">
                 <h1><i class="fas fa-crown"></i> Admin Panel</h1>
                 <p>Zırva Aforizmalar Yönetim Paneli</p>
+                <button onclick="saveDataToJSON()" class="btn btn-primary" style="margin-top: 10px;">
+                    <i class="fas fa-download"></i> JSON Export
+                </button>
             </div>
 
             <!-- Navigation -->
@@ -221,6 +224,8 @@
         let diaryEntries = [];
         let bookEntries = [];
         let subscribers = [];
+        let comments = [];
+        let profilePhoto = null;
         let currentTab = 'diary';
         
         // EmailJS configuration
@@ -240,6 +245,8 @@
             const savedDiaryEntries = localStorage.getItem('diaryEntries');
             const savedBookEntries = localStorage.getItem('bookEntries');
             const savedSubscribers = localStorage.getItem('subscribers');
+            const savedComments = localStorage.getItem('comments');
+            const savedProfilePhoto = localStorage.getItem('profilePhoto');
             
             if (savedDiaryEntries) {
                 diaryEntries = JSON.parse(savedDiaryEntries);
@@ -250,6 +257,12 @@
             if (savedSubscribers) {
                 subscribers = JSON.parse(savedSubscribers);
             }
+            if (savedComments) {
+                comments = JSON.parse(savedComments);
+            }
+            if (savedProfilePhoto) {
+                profilePhoto = savedProfilePhoto;
+            }
         }
         
         // Save data to localStorage
@@ -257,6 +270,37 @@
             localStorage.setItem('diaryEntries', JSON.stringify(diaryEntries));
             localStorage.setItem('bookEntries', JSON.stringify(bookEntries));
             localStorage.setItem('subscribers', JSON.stringify(subscribers));
+            localStorage.setItem('comments', JSON.stringify(comments));
+            if (profilePhoto) {
+                localStorage.setItem('profilePhoto', profilePhoto);
+            }
+        }
+
+        // Save data to JSON file (for GitHub)
+        async function saveDataToJSON() {
+            const data = {
+                diaryEntries: diaryEntries,
+                bookEntries: bookEntries,
+                subscribers: subscribers,
+                comments: comments || [],
+                profilePhoto: profilePhoto || "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face"
+            };
+            
+            // Create downloadable JSON file
+            const jsonString = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            // Create download link
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('data.json dosyası indirildi. GitHub\'a yükleyin!', 'success');
         }
         
         // Utility functions
